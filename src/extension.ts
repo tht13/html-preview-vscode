@@ -21,8 +21,8 @@ export function activate(context: ExtensionContext) {
         }
     });
 
-    workspace.onDidSaveTextDocument((e: TextDocument) => {
-        if (e === window.activeTextEditor.document) {
+    workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
+        if (e.document === window.activeTextEditor.document) {
             provider.update(previewUri);
         }
     });
