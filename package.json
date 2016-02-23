@@ -1,0 +1,33 @@
+{
+	"name": "html-preview-vscode",
+	"displayName": "HTML Preview",
+	"description": "A HTML previewer",
+	"version": "0.0.1",
+	"publisher": "tht13",
+	"engines": {
+		"vscode": "^0.10.8"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:extension.previewHTML"
+	],
+	"main": "./out/src/extension",
+	"contributes": {
+		"commands": [{
+			"command": "extension.previewHTML",
+			"title": "Toggle Preview",
+            "category": "Preview HTML"
+		}]
+	},
+	"scripts": {
+		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install"
+	},
+	"devDependencies": {
+		"typescript": "^1.8.2",
+		"vscode": "^0.11.1"
+	}
+}
