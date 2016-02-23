@@ -4,6 +4,21 @@
     "description": "A HTML previewer",
     "version": "0.0.1",
     "publisher": "tht13",
+    "author": "Thomas Haakon Townsend",
+    "license": "MIT",
+    "readme": "README.md",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/tht13/html-preview-vscode"
+    },
+    "galleryBanner": {
+        "color": "#78d6f0",
+        "theme": "light"
+    },
+    "bugs": "https://github.com/tht13/html-preview-vscode/issues",
+    "homepage": "https://github.com/tht13/html-preview-vscode/blob/master/README.md",
+    "icon": "images/icon.png",
+    "main": "./out/src/extension",
     "engines": {
         "vscode": "^0.10.8"
     },
@@ -14,7 +29,6 @@
         "onCommand:html.preview",
         "onCommand:html.previewToSide"
     ],
-    "main": "./out/src/extension",
     "contributes": {
         "keybindings": [
             {
