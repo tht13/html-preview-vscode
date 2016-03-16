@@ -1,6 +1,6 @@
 # README
 
-An extension to preview HTML files while editing them in VSCode
+An extension to preview HTML or Jade files while editing them in VSCode
 
 The extension can be activated in two ways
 
