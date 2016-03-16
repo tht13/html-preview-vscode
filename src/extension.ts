@@ -82,8 +82,8 @@ class HtmlDocumentContentProvider implements TextDocumentContentProvider {
 
     private createHtmlSnippet(): string {
         let editor = window.activeTextEditor;
-        if (!(editor.document.languageId === "html")) {
-            return this.errorSnippet("Active editor doesn't show a HTML document - no properties to preview.");
+        if (editor.document.languageId !== "html" && editor.document.languageId !== "jade") {
+            return this.errorSnippet("Active editor doesn't show a HTML or Jade document - no properties to preview.");
         }
         return this.preview(editor);
     }
