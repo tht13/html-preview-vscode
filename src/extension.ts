@@ -6,37 +6,26 @@ import { workspace, window, ExtensionContext, commands,
     TextDocument, Disposable } from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-let fileUrl = require("file-url");
+const fileUrl = require("file-url");
+
+enum SourceType {
+    SCRIPT,
+    STYLE
+}
+
+const fileMap: Map<Uri, HtmlDocumentView> = new Map();
 
 export function activate(context: ExtensionContext) {
 
-    let previewUri: Uri;
-
-    let provider: HtmlDocumentContentProvider;
-    let registration: Disposable;
-
-    workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
-        if (e.document === window.activeTextEditor.document) {
-            provider.update(previewUri);
+    function sendHTMLCommand(displayColumn: ViewColumn, doc: TextDocument, toggle: boolean = false) {
+        if (!fileMap.has(doc.uri)) {
+            fileMap.set(doc.uri, new HtmlDocumentView(doc));
         }
-    });
-
-    workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
-        if (e.document === window.activeTextEditor.document) {
-            provider.update(previewUri);
+        if (toggle) {
+            fileMap.get(doc.uri).executeToggle(displayColumn);
+        } else {
+            fileMap.get(doc.uri).executeSide(displayColumn);
         }
-    });
-
-    function sendHTMLCommand(displayColumn: ViewColumn): PromiseLike<void> {
-        let previewTitle = `Preview: '${path.basename(window.activeTextEditor.document.fileName)}'`;
-        provider = new HtmlDocumentContentProvider();
-        registration = workspace.registerTextDocumentContentProvider("html-preview", provider);
-        previewUri = Uri.parse(`html-preview://preview/${previewTitle}`);
-        return commands.executeCommand("vscode.previewHtml", previewUri, displayColumn).then((success) => {
-        }, (reason) => {
-            console.warn(reason);
-            window.showErrorMessage(reason);
-        });
     }
 
     let previewToSide = commands.registerCommand("html.previewToSide", () => {
@@ -50,23 +39,83 @@ export function activate(context: ExtensionContext) {
                 displayColumn = ViewColumn.Three;
                 break;
         }
-        return sendHTMLCommand(displayColumn);
+        return sendHTMLCommand(displayColumn,
+            window.activeTextEditor.document);
     });
 
     let preview = commands.registerCommand("html.preview", () => {
-        return sendHTMLCommand(window.activeTextEditor.viewColumn);
+        return sendHTMLCommand(window.activeTextEditor.viewColumn,
+            window.activeTextEditor.document, true);
     });
 
-    context.subscriptions.push(preview, previewToSide, registration);
+    context.subscriptions.push(preview, previewToSide);
 }
 
-enum SourceType {
-    SCRIPT,
-    STYLE
+class HtmlDocumentView {
+    private provider: HtmlDocumentContentProvider;
+    private registration: Disposable;
+    private title: string;
+    private previewUri: Uri;
+    private doc: TextDocument;
+
+    constructor(document: TextDocument) {
+        this.doc = document;
+        this.title = `Preview: '${path.basename(window.activeTextEditor.document.fileName)}'`;
+        this.provider = new HtmlDocumentContentProvider(this.doc);
+        this.registration = workspace.registerTextDocumentContentProvider("html-preview", this.provider);
+        this.previewUri = Uri.parse(`html-preview://preview/${this.title}`);
+        this.registerEvents();
+    }
+
+    private registerEvents() {
+        workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
+            if (!this.visible) {
+                return;
+            }
+            if (e.document === this.doc) {
+                this.provider.update(this.previewUri);
+            }
+        });
+    }
+
+    private get visible(): boolean {
+        for (let i in window.visibleTextEditors) {
+            if (window.visibleTextEditors[i].document.uri === this.previewUri) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public executeToggle(column: ViewColumn) {
+        if (this.visible) {
+            window.showTextDocument(this.doc, column);
+            this.visible = false;
+        } else {
+            this.execute(column);
+        }
+    }
+
+    public executeSide(column: ViewColumn) {
+        window.showTextDocument(this.doc, column);
+    }
+
+    private execute(column: ViewColumn) {
+        commands.executeCommand("vscode.previewHtml", this.previewUri, column).then((success) => {
+        }, (reason) => {
+            console.warn(reason);
+            window.showErrorMessage(reason);
+        });
+    }
 }
 
 class HtmlDocumentContentProvider implements TextDocumentContentProvider {
     private _onDidChange = new EventEmitter<Uri>();
+    private doc: TextDocument;
+
+    constructor(document: TextDocument) {
+        this.doc = document;
+    }
 
     public provideTextDocumentContent(uri: Uri): string {
         return this.createHtmlSnippet();
@@ -81,11 +130,10 @@ class HtmlDocumentContentProvider implements TextDocumentContentProvider {
     }
 
     private createHtmlSnippet(): string {
-        let editor = window.activeTextEditor;
-        if (editor.document.languageId !== "html" && editor.document.languageId !== "jade") {
+        if (this.doc.languageId !== "html" && this.doc.languageId !== "jade") {
             return this.errorSnippet("Active editor doesn't show a HTML or Jade document - no properties to preview.");
         }
-        return this.preview(editor);
+        return this.preview();
     }
 
     private errorSnippet(error: string): string {
@@ -113,13 +161,14 @@ class HtmlDocumentContentProvider implements TextDocumentContentProvider {
         }
     }
 
-    private fixLinks(document: string, documentPath: string): string {
-        return document.replace(
-            new RegExp("((?:src|href)=[\'\"])((?!http|\\/).*?)([\'\"])", "gmi"), (subString: string, p1: string, p2: string, p3: string): string => {
+    private fixLinks(): string {
+        return this.doc.getText().replace(
+            new RegExp("((?:src|href)=[\'\"])((?!http|\\/).*?)([\'\"])", "gmi"),
+            (subString: string, p1: string, p2: string, p3: string): string => {
                 return [
                     p1,
                     fileUrl(path.join(
-                        path.dirname(documentPath),
+                        path.dirname(this.doc.fileName),
                         p2
                     )),
                     p3
@@ -128,8 +177,8 @@ class HtmlDocumentContentProvider implements TextDocumentContentProvider {
         );
     }
 
-    public preview(editor: TextEditor): string {
-        let doc = editor.document;
-        return this.createLocalSource("header_fix.css", SourceType.STYLE) + this.fixLinks(doc.getText(), doc.fileName);
+    public preview(): string {
+        return this.createLocalSource("header_fix.css", SourceType.STYLE) +
+            this.fixLinks();
     }
 }
