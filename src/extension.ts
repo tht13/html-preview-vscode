@@ -13,11 +13,11 @@ export function activate(context: ExtensionContext) {
     viewManager = new ViewManager();
 
     context.subscriptions.push(
-        commands.registerTextEditorCommand("html.previewToSide", (textEditor: TextEditor) => {
-            viewManager.previewToSide(textEditor);
+        commands.registerCommand("html.previewToSide", () => {
+            viewManager.previewToSide();
         }),
-        commands.registerTextEditorCommand("html.preview", (textEditor: TextEditor) => {
-            viewManager.preview(textEditor);
+        commands.registerCommand("html.preview", () => {
+            viewManager.preview();
         })
     );
 }
@@ -48,9 +48,9 @@ class ViewManager {
         }
     }
 
-    public previewToSide(textEditor: TextEditor) {
+    public previewToSide() {
         let displayColumn: ViewColumn;
-        switch (textEditor.viewColumn) {
+        switch (window.activeTextEditor.viewColumn) {
             case ViewColumn.One:
                 displayColumn = ViewColumn.Two;
                 break;
@@ -63,8 +63,9 @@ class ViewManager {
             window.activeTextEditor.document);
     }
 
-    public preview(textEditor: TextEditor) {
-        this.sendHTMLCommand(textEditor.viewColumn,
+    public preview() {
+        // activeTextEditor does not exist when triggering on a html preview
+        this.sendHTMLCommand(window.activeTextEditor.viewColumn,
             window.activeTextEditor.document, true);
     }
     
