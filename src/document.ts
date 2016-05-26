@@ -2,7 +2,7 @@ import { workspace, window, commands, TextDocumentContentProvider,
     Event, Uri, TextDocumentChangeEvent, ViewColumn, EventEmitter,
     TextDocument, Disposable } from "vscode";
 import * as path from "path";
-const fileUrl = require("file-url");
+import fileUrl = require("file-url");
 import { SourceType } from "./extension";
 
 export class HtmlDocumentView {
