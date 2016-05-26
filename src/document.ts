@@ -20,6 +20,10 @@ export class HtmlDocumentView {
         this.previewUri = Uri.parse(`html-preview://preview/${this.title}`);
         this.registerEvents();
     }
+    
+    public get uri(): Uri {
+        return this.previewUri;
+    }
 
     private registerEvents() {
         workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
