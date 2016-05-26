@@ -23,16 +23,20 @@ export function activate(context: ExtensionContext) {
 }
 
 class ViewManager {
-    private fileMap: Map<Uri, HtmlDocumentView> = new Map();
+    private idMap: IDMap = new IDMap();
+    private fileMap: Map<string, HtmlDocumentView> = new Map();
 
     private sendHTMLCommand(displayColumn: ViewColumn, doc: TextDocument, toggle: boolean = false) {
-        if (!this.fileMap.has(doc.uri)) {
-            this.fileMap.set(doc.uri, new HtmlDocumentView(doc));
+        if (!this.idMap.hasUri(doc.uri)) {
+            let htmlDoc = new HtmlDocumentView(doc);
+            let id = this.idMap.add(doc.uri, htmlDoc.uri);
+            this.fileMap.set(id, htmlDoc);
         }
+        let id = this.idMap.getByUri(doc.uri);
         if (toggle) {
-            this.fileMap.get(doc.uri).executeToggle(displayColumn);
+            this.fileMap.get(id).executeToggle(displayColumn);
         } else {
-            this.fileMap.get(doc.uri).executeSide(displayColumn);
+            this.fileMap.get(id).executeSide(displayColumn);
         }
     }
 
