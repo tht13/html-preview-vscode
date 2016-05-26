@@ -1,6 +1,7 @@
 "use strict";
 import { window, ExtensionContext, commands, Uri,
     ViewColumn, TextDocument, TextEditor } from "vscode";
+import * as uuid from "node-uuid";
 import { HtmlDocumentView } from "./document";
 
 export enum SourceType {
@@ -53,5 +54,28 @@ class ViewManager {
     public preview(textEditor: TextEditor) {
         this.sendHTMLCommand(textEditor.viewColumn,
             window.activeTextEditor.document, true);
+    }
+}
+
+class IDMap extends Map<[Uri, Uri], string> {    
+    public getByUri(uri: Uri) {
+        let keys = this.keys()
+        let key: IteratorResult<[Uri, Uri]> = keys.next();
+        while (!key.done) {
+            if (key.value.indexOf(uri) > -1) {
+                return this.get(key.value);
+            }
+        }
+        return null;
+    }
+    
+    public hasUri(uri: Uri) {
+        return this.getByUri(uri) !== null;
+    }
+    
+    public add(uri1: Uri, uri2: Uri) {
+        let id = uuid.v4();
+        this.set([uri1, uri2], id);
+        return id;
     }
 }
