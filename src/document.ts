@@ -55,7 +55,7 @@ export class HtmlDocumentView {
     }
 
     public executeSide(column: ViewColumn) {
-        window.showTextDocument(this.doc, column);
+        this.execute(column);
     }
 
     private execute(column: ViewColumn) {
