@@ -20,7 +20,7 @@
     "icon": "images/icon.png",
     "main": "./out/src/extension",
     "engines": {
-        "vscode": "1.1.0"
+        "vscode": "^1.1.0"
     },
     "categories": [
         "Other"
