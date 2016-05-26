@@ -27,16 +27,20 @@ class ViewManager {
     private fileMap: Map<string, HtmlDocumentView> = new Map();
 
     private sendHTMLCommand(displayColumn: ViewColumn, doc: TextDocument, toggle: boolean = false) {
+        let id: string;
+        let htmlDoc: HtmlDocumentView;
         if (!this.idMap.hasUri(doc.uri)) {
-            let htmlDoc = new HtmlDocumentView(doc);
-            let id = this.idMap.add(doc.uri, htmlDoc.uri);
+            htmlDoc = new HtmlDocumentView(doc);
+            id = this.idMap.add(doc.uri, htmlDoc.uri);
             this.fileMap.set(id, htmlDoc);
-        }
-        let id = this.idMap.getByUri(doc.uri);
-        if (toggle) {
-            this.fileMap.get(id).executeToggle(displayColumn);
         } else {
-            this.fileMap.get(id).executeSide(displayColumn);
+            id = this.idMap.getByUri(doc.uri);
+            htmlDoc = this.fileMap.get(id);
+        }
+        if (toggle || htmlDoc.uri === doc.uri) {
+            htmlDoc.executeToggle(displayColumn);
+        } else {
+            htmlDoc.executeSide(displayColumn);
         }
     }
 
@@ -61,7 +65,7 @@ class ViewManager {
     }
 }
 
-class IDMap extends Map<[Uri, Uri], string> {    
+class IDMap extends Map<[Uri, Uri], string> {
     public getByUri(uri: Uri) {
         let keys = this.keys()
         let key: IteratorResult<[Uri, Uri]> = keys.next();
@@ -72,11 +76,11 @@ class IDMap extends Map<[Uri, Uri], string> {
         }
         return null;
     }
-    
+
     public hasUri(uri: Uri) {
         return this.getByUri(uri) !== null;
     }
-    
+
     public add(uri1: Uri, uri2: Uri) {
         let id = uuid.v4();
         this.set([uri1, uri2], id);
