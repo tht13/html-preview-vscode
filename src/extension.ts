@@ -12,10 +12,10 @@ export function activate(context: ExtensionContext) {
     const viewManager = new ViewManager();
 
     context.subscriptions.push(
-        commands.registerTextEditorCommand("html.previewToSide", textEditor => {
+        commands.registerTextEditorCommand("html.previewToSide", (textEditor: TextEditor) => {
             viewManager.previewToSide(textEditor);
         }),
-        commands.registerTextEditorCommand("html.preview", textEditor => {
+        commands.registerTextEditorCommand("html.preview", (textEditor: TextEditor) => {
             viewManager.preview(textEditor);
         })
     );
