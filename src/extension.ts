@@ -88,6 +88,7 @@ class IDMap {
             if (key.value.indexOf(uri) > -1) {
                 return this.map.get(key.value);
             }
+            key = keys.next();
         }
         return null;
     }
