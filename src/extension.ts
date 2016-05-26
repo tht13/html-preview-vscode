@@ -1,6 +1,6 @@
 "use strict";
 import { window, ExtensionContext, commands, Uri,
-    ViewColumn, TextDocument } from "vscode";
+    ViewColumn, TextDocument, TextEditor } from "vscode";
 import { HtmlDocumentView } from "./document";
 
 export enum SourceType {
@@ -12,11 +12,11 @@ export function activate(context: ExtensionContext) {
     const viewManager = new ViewManager();
 
     context.subscriptions.push(
-        commands.registerCommand("html.previewToSide", () => {
-            viewManager.previewToSide();
+        commands.registerTextEditorCommand("html.previewToSide", textEditor => {
+            viewManager.previewToSide(textEditor);
         }),
-        commands.registerCommand("html.preview", () => {
-            viewManager.preview();
+        commands.registerTextEditorCommand("html.preview", textEditor => {
+            viewManager.preview(textEditor);
         })
     );
 }
@@ -35,9 +35,9 @@ class ViewManager {
         }
     }
 
-    public previewToSide() {
+    public previewToSide(textEditor: TextEditor) {
         let displayColumn: ViewColumn;
-        switch (window.activeTextEditor.viewColumn) {
+        switch (textEditor.viewColumn) {
             case ViewColumn.One:
                 displayColumn = ViewColumn.Two;
                 break;
@@ -50,8 +50,8 @@ class ViewManager {
             window.activeTextEditor.document);
     }
 
-    public preview() {
-        this.sendHTMLCommand(window.activeTextEditor.viewColumn,
+    public preview(textEditor: TextEditor) {
+        this.sendHTMLCommand(textEditor.viewColumn,
             window.activeTextEditor.document, true);
     }
 }
