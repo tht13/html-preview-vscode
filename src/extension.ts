@@ -65,13 +65,15 @@ class ViewManager {
     }
 }
 
-class IDMap extends Map<[Uri, Uri], string> {
+class IDMap {
+    private map: Map<[Uri, Uri], string> = new Map();
+
     public getByUri(uri: Uri) {
-        let keys = this.keys()
+        let keys = this.map.keys()
         let key: IteratorResult<[Uri, Uri]> = keys.next();
         while (!key.done) {
             if (key.value.indexOf(uri) > -1) {
-                return this.get(key.value);
+                return this.map.get(key.value);
             }
         }
         return null;
@@ -83,7 +85,7 @@ class IDMap extends Map<[Uri, Uri], string> {
 
     public add(uri1: Uri, uri2: Uri) {
         let id = uuid.v4();
-        this.set([uri1, uri2], id);
+        this.map.set([uri1, uri2], id);
         return id;
     }
 }
