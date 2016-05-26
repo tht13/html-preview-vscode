@@ -7,7 +7,7 @@ import { SourceType } from "./extension";
 
 export class HtmlDocumentView {
     private provider: HtmlDocumentContentProvider;
-    private registration: Disposable;
+    private registrations: Disposable[] = [];
     private title: string;
     private previewUri: Uri;
     private doc: TextDocument;
@@ -16,7 +16,7 @@ export class HtmlDocumentView {
         this.doc = document;
         this.title = `Preview: '${path.basename(window.activeTextEditor.document.fileName)}'`;
         this.provider = new HtmlDocumentContentProvider(this.doc);
-        this.registration = workspace.registerTextDocumentContentProvider("html-preview", this.provider);
+        this.registrations.push(workspace.registerTextDocumentContentProvider("html-preview", this.provider));
         this.previewUri = Uri.parse(`html-preview://preview/${this.title}`);
         this.registerEvents();
     }
@@ -26,14 +26,14 @@ export class HtmlDocumentView {
     }
 
     private registerEvents() {
-        workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
+        this.registrations.push(workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
             if (!this.visible) {
                 return;
             }
             if (e.document === this.doc) {
                 this.provider.update(this.previewUri);
             }
-        });
+        }));
     }
 
     private get visible(): boolean {
@@ -64,6 +64,12 @@ export class HtmlDocumentView {
             console.warn(reason);
             window.showErrorMessage(reason);
         });
+    }
+    
+    public dispose() {
+        for (let i in this.registrations) {
+            this.registrations[i].dispose();
+        }
     }
 }
 

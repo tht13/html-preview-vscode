@@ -8,9 +8,9 @@ export enum SourceType {
     SCRIPT,
     STYLE
 }
-
+let viewManager: ViewManager;
 export function activate(context: ExtensionContext) {
-    const viewManager = new ViewManager();
+    viewManager = new ViewManager();
 
     context.subscriptions.push(
         commands.registerTextEditorCommand("html.previewToSide", (textEditor: TextEditor) => {
@@ -20,6 +20,10 @@ export function activate(context: ExtensionContext) {
             viewManager.preview(textEditor);
         })
     );
+}
+
+export function deactivate() {
+    viewManager.dispose();
 }
 
 class ViewManager {
@@ -62,6 +66,15 @@ class ViewManager {
     public preview(textEditor: TextEditor) {
         this.sendHTMLCommand(textEditor.viewColumn,
             window.activeTextEditor.document, true);
+    }
+    
+    public dispose() {
+        let values = this.fileMap.values()
+        let value: IteratorResult<HtmlDocumentView> = values.next();
+        while (!value.done) {
+            value.value.dispose();
+            value = values.next();
+        }
     }
 }
 
