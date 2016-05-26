@@ -8,22 +8,34 @@ export enum SourceType {
     STYLE
 }
 
-const fileMap: Map<Uri, HtmlDocumentView> = new Map();
-
 export function activate(context: ExtensionContext) {
+    const viewManager = new ViewManager();
 
-    function sendHTMLCommand(displayColumn: ViewColumn, doc: TextDocument, toggle: boolean = false) {
-        if (!fileMap.has(doc.uri)) {
-            fileMap.set(doc.uri, new HtmlDocumentView(doc));
+    context.subscriptions.push(
+        commands.registerCommand("html.previewToSide", () => {
+            viewManager.previewToSide();
+        }),
+        commands.registerCommand("html.preview", () => {
+            viewManager.preview();
+        })
+    );
+}
+
+class ViewManager {
+    private fileMap: Map<Uri, HtmlDocumentView> = new Map();
+
+    private sendHTMLCommand(displayColumn: ViewColumn, doc: TextDocument, toggle: boolean = false) {
+        if (!this.fileMap.has(doc.uri)) {
+            this.fileMap.set(doc.uri, new HtmlDocumentView(doc));
         }
         if (toggle) {
-            fileMap.get(doc.uri).executeToggle(displayColumn);
+            this.fileMap.get(doc.uri).executeToggle(displayColumn);
         } else {
-            fileMap.get(doc.uri).executeSide(displayColumn);
+            this.fileMap.get(doc.uri).executeSide(displayColumn);
         }
     }
 
-    let previewToSide = commands.registerCommand("html.previewToSide", () => {
+    public previewToSide() {
         let displayColumn: ViewColumn;
         switch (window.activeTextEditor.viewColumn) {
             case ViewColumn.One:
@@ -34,14 +46,12 @@ export function activate(context: ExtensionContext) {
                 displayColumn = ViewColumn.Three;
                 break;
         }
-        return sendHTMLCommand(displayColumn,
+        this.sendHTMLCommand(displayColumn,
             window.activeTextEditor.document);
-    });
+    }
 
-    let preview = commands.registerCommand("html.preview", () => {
-        return sendHTMLCommand(window.activeTextEditor.viewColumn,
+    public preview() {
+        this.sendHTMLCommand(window.activeTextEditor.viewColumn,
             window.activeTextEditor.document, true);
-    });
-
-    context.subscriptions.push(preview, previewToSide);
+    }
 }
