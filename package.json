@@ -20,7 +20,7 @@
   "icon": "images/icon.png",
   "main": "./out/src/extension",
   "engines": {
-    "vscode": "^1.1.0"
+    "vscode": "^1.6.0"
   },
   "categories": [
     "Other"
@@ -56,8 +56,8 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "dependencies": {
@@ -65,7 +65,11 @@
     "node-uuid": "^1.4.7"
   },
   "devDependencies": {
-    "typescript": "^1.8.10",
-    "vscode": "^0.11.13"
+    "@types/es6-shim": "^0.31.32",
+    "@types/file-url": "^1.0.28",
+    "@types/node": "^6.0.45",
+    "@types/node-uuid": "0.0.28",
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0"
   }
 }
