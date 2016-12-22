@@ -17,7 +17,7 @@
   },
   "bugs": "https://github.com/tht13/html-preview-vscode/issues",
   "homepage": "https://github.com/tht13/html-preview-vscode/blob/master/README.md",
-  "icon": "images/icon.png",
+  "icon": "media/icon.png",
   "main": "./out/src/extension",
   "engines": {
     "vscode": "^1.6.0"
@@ -27,33 +27,74 @@
   ],
   "activationEvents": [
     "onCommand:html.preview",
-    "onCommand:html.previewToSide"
+    "onCommand:html.previewToSide",
+    "onCommand:html.source"
   ],
   "contributes": {
     "keybindings": [
       {
         "command": "html.preview",
         "key": "ctrl+shift+h",
-        "when": "editorTextFocus"
+        "mac": "cmd+shift+h",
+        "when": "!terminalFocus"
       },
       {
         "command": "html.previewToSide",
         "key": "ctrl+k h",
-        "when": "editorTextFocus"
+        "mac": "cmd+k h"
       }
     ],
     "commands": [
       {
         "command": "html.preview",
         "title": "Toggle Preview",
-        "category": "HTML"
+        "category": "HTML",
+				"icon": {
+					"light": "./media/Preview.svg",
+					"dark": "./media/Preview_inverse.svg"
+				}
       },
       {
         "command": "html.previewToSide",
         "title": "Open Preview to the Side",
-        "category": "HTML"
+        "category": "HTML",
+				"icon": {
+					"light": "./media/PreviewOnRightPane_16x.svg",
+					"dark": "./media/PreviewOnRightPane_16x_dark.svg"
+				}
+      },
+			{
+				"command": "html.source",
+				"title": "Show Source",
+				"category": "HTML",
+				"icon": {
+					"light": "./media/ViewSource.svg",
+					"dark": "./media/ViewSource_inverse.svg"
+				}
+			}
+    ],
+		"menus": {
+			"editor/title": [
+				{
+					"when": "editorLangId == html",
+					"command": "html.preview",
+					"alt": "html.previewToSide",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceScheme == html",
+					"command": "html.source",
+					"group": "navigation"
+				}
+			],
+			"explorer/context": [
+				{
+					"when": "editorLangId == html",
+					"command": "html.preview",
+					"group": "navigation"
       }
     ]
+		}
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",
