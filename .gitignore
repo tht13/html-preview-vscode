@@ -1,6 +1,4 @@
 out
 node_modules
 *.vsix
-typings/index.d.ts
-typings/modules
-typings/globals
+.vscode/symbols.json

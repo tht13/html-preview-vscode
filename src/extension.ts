@@ -1,6 +1,8 @@
 "use strict";
-import { window, ExtensionContext, commands, Uri,
-    ViewColumn, TextDocument, TextEditor } from "vscode";
+import {
+    window, ExtensionContext, commands, Uri,
+    ViewColumn, TextDocument, TextEditor, workspace
+} from "vscode";
 import * as uuid from "node-uuid";
 import { HtmlDocumentView } from "./document";
 
@@ -13,12 +15,9 @@ export function activate(context: ExtensionContext) {
     viewManager = new ViewManager();
 
     context.subscriptions.push(
-        commands.registerCommand("html.previewToSide", () => {
-            viewManager.previewToSide();
-        }),
-        commands.registerCommand("html.preview", () => {
-            viewManager.preview();
-        })
+        commands.registerCommand("html.previewToSide", uri => viewManager.preview(uri, true)),
+        commands.registerCommand("html.preview", () => viewManager.preview()),
+        commands.registerCommand("html.source", () => viewManager.source())
     );
 }
 
@@ -28,7 +27,7 @@ export function deactivate() {
 
 class ViewManager {
     private idMap: IDMap = new IDMap();
-    private fileMap: Map<string, HtmlDocumentView> = new Map();
+    private fileMap: Map<string, HtmlDocumentView> = new Map<string, HtmlDocumentView>();
 
     private sendHTMLCommand(displayColumn: ViewColumn, doc: TextDocument, toggle: boolean = false) {
         let id: string;
@@ -41,34 +40,70 @@ class ViewManager {
             id = this.idMap.getByUri(doc.uri);
             htmlDoc = this.fileMap.get(id);
         }
-        if (toggle || htmlDoc.uri === doc.uri) {
-            htmlDoc.executeToggle(displayColumn);
-        } else {
-            htmlDoc.executeSide(displayColumn);
-        }
+        htmlDoc.execute(displayColumn);
     }
 
-    public previewToSide() {
-        let displayColumn: ViewColumn;
-        switch (window.activeTextEditor.viewColumn) {
-            case ViewColumn.One:
-                displayColumn = ViewColumn.Two;
-                break;
-            case ViewColumn.Two:
-            case ViewColumn.Three:
-                displayColumn = ViewColumn.Three;
-                break;
+    private getViewColumn(sideBySide: boolean): ViewColumn {
+        const active = window.activeTextEditor;
+        if (!active) {
+            return ViewColumn.One;
         }
-        this.sendHTMLCommand(displayColumn,
+
+        if (!sideBySide) {
+            return active.viewColumn;
+        }
+
+        switch (active.viewColumn) {
+            case ViewColumn.One:
+                return ViewColumn.Two;
+            case ViewColumn.Two:
+                return ViewColumn.Three;
+        }
+
+        return active.viewColumn;
+    }
+
+    public source(mdUri?: Uri) {
+        if (!mdUri) {
+            return commands.executeCommand('workbench.action.navigateBack');
+        }
+
+        const docUri = Uri.parse(mdUri.query);
+
+        for (let editor of window.visibleTextEditors) {
+            if (editor.document.uri.toString() === docUri.toString()) {
+                return window.showTextDocument(editor.document, editor.viewColumn);
+            }
+        }
+
+        return workspace.openTextDocument(docUri).then(doc => {
+            return window.showTextDocument(doc);
+        });
+    }
+
+    public preview(uri?: Uri, sideBySide: boolean = false) {
+
+        let resource = uri;
+        if (!(resource instanceof Uri)) {
+            if (window.activeTextEditor) {
+                // we are relaxed and don't check for markdown files
+                resource = window.activeTextEditor.document.uri;
+            }
+        }
+
+        if (!(resource instanceof Uri)) {
+            if (!window.activeTextEditor) {
+                // this is most likely toggling the preview
+                return commands.executeCommand('html.source');
+            }
+            // nothing found that could be shown or toggled
+            return;
+        }
+        // activeTextEditor does not exist when triggering on a html preview
+        this.sendHTMLCommand(this.getViewColumn(sideBySide),
             window.activeTextEditor.document);
     }
 
-    public preview() {
-        // activeTextEditor does not exist when triggering on a html preview
-        this.sendHTMLCommand(window.activeTextEditor.viewColumn,
-            window.activeTextEditor.document, true);
-    }
-    
     public dispose() {
         let values = this.fileMap.values()
         let value: IteratorResult<HtmlDocumentView> = values.next();
@@ -80,7 +115,7 @@ class ViewManager {
 }
 
 class IDMap {
-    private map: Map<[Uri, Uri], string> = new Map();
+    private map: Map<[Uri, Uri], string> = new Map<[Uri, Uri], string>();
 
     public getByUri(uri: Uri) {
         let keys = this.map.keys()

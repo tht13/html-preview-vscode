@@ -1,6 +1,8 @@
-import { workspace, window, commands, TextDocumentContentProvider,
+import {
+    workspace, window, commands, TextDocumentContentProvider,
     Event, Uri, TextDocumentChangeEvent, ViewColumn, EventEmitter,
-    TextDocument, Disposable } from "vscode";
+    TextDocument, Disposable
+} from "vscode";
 import * as path from "path";
 import fileUrl = require("file-url");
 import { SourceType } from "./extension";
@@ -8,24 +10,51 @@ import { SourceType } from "./extension";
 export class HtmlDocumentView {
     private provider: HtmlDocumentContentProvider;
     private registrations: Disposable[] = [];
-    private title: string;
     private previewUri: Uri;
     private doc: TextDocument;
 
     constructor(document: TextDocument) {
         this.doc = document;
-        this.title = `Preview: '${path.basename(window.activeTextEditor.document.fileName)}'`;
         this.provider = new HtmlDocumentContentProvider(this.doc);
-        this.registrations.push(workspace.registerTextDocumentContentProvider("html-preview", this.provider));
-        this.previewUri = Uri.parse(`html-preview://preview/${this.title}`);
+        this.registrations.push(workspace.registerTextDocumentContentProvider("html", this.provider));
+        this.previewUri = this.getHTMLUri(document.uri);
         this.registerEvents();
     }
-    
+
     public get uri(): Uri {
         return this.previewUri;
     }
 
+
+
+    private getHTMLUri(uri: Uri) {
+        return uri.with({ scheme: 'html', path: uri.path + '.rendered', query: uri.toString() });
+    }
+
     private registerEvents() {
+        workspace.onDidSaveTextDocument(document => {
+            if (this.isHTMLFile(document)) {
+                const uri = this.getHTMLUri(document.uri);
+                this.provider.update(uri);
+            }
+        });
+
+        workspace.onDidChangeTextDocument(event => {
+            if (this.isHTMLFile(event.document)) {
+                const uri = this.getHTMLUri(event.document.uri);
+                this.provider.update(uri);
+
+            }
+        });
+
+        workspace.onDidChangeConfiguration(() => {
+            workspace.textDocuments.forEach(document => {
+                if (document.uri.scheme === 'html') {
+                    // update all generated md documents
+                    this.provider.update(document.uri);
+                }
+            });
+        });
         this.registrations.push(workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
             if (!this.visible) {
                 return;
@@ -45,31 +74,23 @@ export class HtmlDocumentView {
         return false;
     }
 
-    public executeToggle(column: ViewColumn) {
-        if (this.visible) {
-            window.showTextDocument(this.doc, column);
-            this.visible = false;
-        } else {
-            this.execute(column);
-        }
-    }
-
-    public executeSide(column: ViewColumn) {
-        this.execute(column);
-    }
-
-    private execute(column: ViewColumn) {
-        commands.executeCommand("vscode.previewHtml", this.previewUri, column).then((success) => {
+    public execute(column: ViewColumn) {
+        commands.executeCommand("vscode.previewHtml", this.previewUri, column, `Preview '${path.basename(this.uri.fsPath)}'`).then((success) => {
         }, (reason) => {
             console.warn(reason);
             window.showErrorMessage(reason);
         });
     }
-    
+
     public dispose() {
         for (let i in this.registrations) {
             this.registrations[i].dispose();
         }
+    }
+
+    private isHTMLFile(document: TextDocument) {
+        return document.languageId === 'html'
+            && document.uri.scheme !== 'html'; // prevent processing of own documents
     }
 }
 
