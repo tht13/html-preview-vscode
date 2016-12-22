@@ -3,9 +3,8 @@
 		"module": "commonjs",
 		"target": "es6",
 		"outDir": "out",
-		"noLib": false,
 		"sourceMap": true,
-        "rootDir": "."
+		"rootDir": "."
 	},
 	"exclude": [
 		"node_modules"

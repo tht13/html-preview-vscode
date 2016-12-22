@@ -49,68 +49,72 @@
         "command": "html.preview",
         "title": "Toggle Preview",
         "category": "HTML",
-				"icon": {
-					"light": "./media/Preview.svg",
-					"dark": "./media/Preview_inverse.svg"
-				}
+        "icon": {
+          "light": "./media/Preview.svg",
+          "dark": "./media/Preview_inverse.svg"
+        }
       },
       {
         "command": "html.previewToSide",
         "title": "Open Preview to the Side",
         "category": "HTML",
-				"icon": {
-					"light": "./media/PreviewOnRightPane_16x.svg",
-					"dark": "./media/PreviewOnRightPane_16x_dark.svg"
-				}
+        "icon": {
+          "light": "./media/PreviewOnRightPane_16x.svg",
+          "dark": "./media/PreviewOnRightPane_16x_dark.svg"
+        }
       },
-			{
-				"command": "html.source",
-				"title": "Show Source",
-				"category": "HTML",
-				"icon": {
-					"light": "./media/ViewSource.svg",
-					"dark": "./media/ViewSource_inverse.svg"
-				}
-			}
-    ],
-		"menus": {
-			"editor/title": [
-				{
-					"when": "editorLangId == html",
-					"command": "html.preview",
-					"alt": "html.previewToSide",
-					"group": "navigation"
-				},
-				{
-					"when": "resourceScheme == html",
-					"command": "html.source",
-					"group": "navigation"
-				}
-			],
-			"explorer/context": [
-				{
-					"when": "editorLangId == html",
-					"command": "html.preview",
-					"group": "navigation"
+      {
+        "command": "html.source",
+        "title": "Show Source",
+        "category": "HTML",
+        "icon": {
+          "light": "./media/ViewSource.svg",
+          "dark": "./media/ViewSource_inverse.svg"
+        }
       }
-    ]
-		}
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "when": "editorLangId == html",
+          "command": "html.preview",
+          "alt": "html.previewToSide",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceScheme == html",
+          "command": "html.source",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "editorLangId == html",
+          "command": "html.preview",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
-    "vscode:prepublish": "tsc -p ./",
-    "compile": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install"
+    "build": "tsc -p ./",
+    "vscode:prepublish": "npm run build",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "preversion": "npm run build",
+    "version": "changes",
+    "postversion": "git push --follow-tags"
   },
   "dependencies": {
-    "file-url": "^1.1.0",
+    "file-url": "^2.0.0",
     "node-uuid": "^1.4.7"
   },
   "devDependencies": {
-    "@types/es6-shim": "^0.31.32",
+    "@studio/changes": "^1.0.4",
     "@types/file-url": "^1.0.28",
-    "@types/node": "^6.0.45",
+    "@types/node": "^6.0.52",
     "@types/node-uuid": "0.0.28",
-    "typescript": "^2.0.3",
-    "vscode": "^1.0.0"
+    "typescript": "^2.1.4",
+    "vscode": "^1.0.3"
   }
 }
