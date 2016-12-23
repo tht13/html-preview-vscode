@@ -2,7 +2,7 @@
   "name": "html-preview-vscode",
   "displayName": "HTML Preview",
   "description": "A HTML previewer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "tht13",
   "author": "Thomas Haakon Townsend",
   "license": "MIT",

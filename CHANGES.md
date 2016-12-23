@@ -1,5 +1,10 @@
 # Changes
 
+## 0.1.1
+
+- Update readme for MacOS keybindings (Thomas Townsend)
+- Bring command text inline with markdown (Thomas Townsend)
+
 ## 0.1.0
 
 - Hide tests for now (Thomas Townsend)
