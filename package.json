@@ -47,7 +47,7 @@
     "commands": [
       {
         "command": "html.preview",
-        "title": "Toggle Preview",
+        "title": "Open Preview",
         "category": "HTML",
         "icon": {
           "light": "./media/Preview.svg",
