@@ -36,12 +36,13 @@
         "command": "html.preview",
         "key": "ctrl+shift+h",
         "mac": "cmd+shift+h",
-        "when": "!terminalFocus"
+        "when": "editorFocus"
       },
       {
         "command": "html.previewToSide",
         "key": "ctrl+k h",
-        "mac": "cmd+k h"
+        "mac": "cmd+k h",
+        "when": "editorFocus"
       }
     ],
     "commands": [
