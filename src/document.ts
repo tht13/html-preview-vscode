@@ -150,7 +150,7 @@ class HtmlDocumentContentProvider implements TextDocumentContentProvider {
 
     private fixLinks(): string {
         return this.doc.getText().replace(
-            new RegExp("((?:src|href)=[\'\"])((?!http|\\/).*?)([\'\"])", "gmi"),
+            new RegExp("((?:src|href)=[\'\"])((?!http|\\/|data:\w+(?:\\/\w+);base64).*?)([\'\"])", "gmi"),
             (subString: string, p1: string, p2: string, p3: string): string => {
                 return [
                     p1,
