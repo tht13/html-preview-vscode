@@ -27,21 +27,21 @@ export class HtmlDocumentView {
 
 
 
-    private getHTMLUri(uri: Uri) {
-        return uri.with({ scheme: 'html', path: uri.path + '.rendered', query: uri.toString() });
+    private getHTMLUri(uri: Uri): Uri {
+        return uri.with({ scheme: "html", path: uri.path + ".rendered", query: uri.toString() });
     }
 
-    private registerEvents() {
+    private registerEvents(): void {
         workspace.onDidSaveTextDocument(document => {
             if (this.isHTMLFile(document)) {
-                const uri = this.getHTMLUri(document.uri);
+                const uri: Uri = this.getHTMLUri(document.uri);
                 this.provider.update(uri);
             }
         });
 
         workspace.onDidChangeTextDocument(event => {
             if (this.isHTMLFile(event.document)) {
-                const uri = this.getHTMLUri(event.document.uri);
+                const uri: Uri = this.getHTMLUri(event.document.uri);
                 this.provider.update(uri);
 
             }
@@ -49,7 +49,7 @@ export class HtmlDocumentView {
 
         workspace.onDidChangeConfiguration(() => {
             workspace.textDocuments.forEach(document => {
-                if (document.uri.scheme === 'html') {
+                if (document.uri.scheme === "html") {
                     // update all generated md documents
                     this.provider.update(document.uri);
                 }
@@ -74,23 +74,25 @@ export class HtmlDocumentView {
         return false;
     }
 
-    public execute(column: ViewColumn) {
-        commands.executeCommand("vscode.previewHtml", this.previewUri, column, `Preview '${path.basename(this.uri.fsPath)}'`).then((success) => {
-        }, (reason) => {
-            console.warn(reason);
-            window.showErrorMessage(reason);
-        });
+    public execute(column: ViewColumn): void {
+        commands.executeCommand("vscode.previewHtml", this.previewUri, column,
+            `Preview '${path.basename(this.uri.fsPath)}'`).then(
+            (success) => void 0,
+            (reason) => {
+                console.warn(reason);
+                window.showErrorMessage(reason);
+            });
     }
 
-    public dispose() {
-        for (let i in this.registrations) {
-            this.registrations[i].dispose();
+    public dispose(): void {
+        for (let registration of this.registrations) {
+            registration.dispose();
         }
     }
 
-    private isHTMLFile(document: TextDocument) {
-        return document.languageId === 'html'
-            && document.uri.scheme !== 'html'; // prevent processing of own documents
+    private isHTMLFile(document: TextDocument): boolean {
+        return document.languageId === "html"
+            && document.uri.scheme !== "html"; // prevent processing of own documents
     }
 }
 
@@ -110,7 +112,7 @@ class HtmlDocumentContentProvider implements TextDocumentContentProvider {
         return this._onDidChange.event;
     }
 
-    public update(uri: Uri) {
+    public update(uri: Uri): void {
         this._onDidChange.fire(uri);
     }
 
@@ -128,8 +130,8 @@ class HtmlDocumentContentProvider implements TextDocumentContentProvider {
                 </body>`;
     }
 
-    private createLocalSource(file: string, type: SourceType) {
-        let source_path = fileUrl(
+    private createLocalSource(file: string, type: SourceType): string {
+        let source_path: string = fileUrl(
             path.join(
                 __dirname,
                 "..",

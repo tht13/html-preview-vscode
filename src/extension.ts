@@ -11,7 +11,7 @@ export enum SourceType {
     STYLE
 }
 let viewManager: ViewManager;
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext): void {
     viewManager = new ViewManager();
 
     context.subscriptions.push(
@@ -21,7 +21,7 @@ export function activate(context: ExtensionContext) {
     );
 }
 
-export function deactivate() {
+export function deactivate(): void {
     viewManager.dispose();
 }
 
@@ -29,7 +29,7 @@ class ViewManager {
     private idMap: IDMap = new IDMap();
     private fileMap: Map<string, HtmlDocumentView> = new Map<string, HtmlDocumentView>();
 
-    private sendHTMLCommand(displayColumn: ViewColumn, doc: TextDocument, toggle: boolean = false) {
+    private sendHTMLCommand(displayColumn: ViewColumn, doc: TextDocument, toggle: boolean = false): void {
         let id: string;
         let htmlDoc: HtmlDocumentView;
         if (!this.idMap.hasUri(doc.uri)) {
@@ -44,7 +44,7 @@ class ViewManager {
     }
 
     private getViewColumn(sideBySide: boolean): ViewColumn {
-        const active = window.activeTextEditor;
+        const active: TextEditor = window.activeTextEditor;
         if (!active) {
             return ViewColumn.One;
         }
@@ -63,12 +63,12 @@ class ViewManager {
         return active.viewColumn;
     }
 
-    public source(mdUri?: Uri) {
+    public source(mdUri?: Uri): Thenable<any> {
         if (!mdUri) {
-            return commands.executeCommand('workbench.action.navigateBack');
+            return commands.executeCommand("workbench.action.navigateBack");
         }
 
-        const docUri = Uri.parse(mdUri.query);
+        const docUri: Uri = Uri.parse(mdUri.query);
 
         for (let editor of window.visibleTextEditors) {
             if (editor.document.uri.toString() === docUri.toString()) {
@@ -81,9 +81,7 @@ class ViewManager {
         });
     }
 
-    public preview(uri?: Uri, sideBySide: boolean = false) {
-
-        let resource = uri;
+    public preview(resource?: Uri, sideBySide: boolean = false): void {
         if (!(resource instanceof Uri)) {
             if (window.activeTextEditor) {
                 // we are relaxed and don't check for markdown files
@@ -94,7 +92,8 @@ class ViewManager {
         if (!(resource instanceof Uri)) {
             if (!window.activeTextEditor) {
                 // this is most likely toggling the preview
-                return commands.executeCommand('html.source');
+                commands.executeCommand("html.source");
+                return;
             }
             // nothing found that could be shown or toggled
             return;
@@ -104,12 +103,9 @@ class ViewManager {
             window.activeTextEditor.document);
     }
 
-    public dispose() {
-        let values = this.fileMap.values()
-        let value: IteratorResult<HtmlDocumentView> = values.next();
-        while (!value.done) {
-            value.value.dispose();
-            value = values.next();
+    public dispose(): void {
+        for (let document of this.fileMap.values()) {
+            document.dispose();
         }
     }
 }
@@ -117,24 +113,20 @@ class ViewManager {
 class IDMap {
     private map: Map<[Uri, Uri], string> = new Map<[Uri, Uri], string>();
 
-    public getByUri(uri: Uri) {
-        let keys = this.map.keys()
-        let key: IteratorResult<[Uri, Uri]> = keys.next();
-        while (!key.done) {
-            if (key.value.indexOf(uri) > -1) {
-                return this.map.get(key.value);
+    public getByUri(uri: Uri): string {
+        for (let key of this.map.keys()) {
+            if (key.indexOf(uri) > -1) {
+                return this.map.get(key);
             }
-            key = keys.next();
         }
-        return null;
     }
 
-    public hasUri(uri: Uri) {
+    public hasUri(uri: Uri): boolean {
         return this.getByUri(uri) !== null;
     }
 
-    public add(uri1: Uri, uri2: Uri) {
-        let id = uuid.v4();
+    public add(uri1: Uri, uri2: Uri): string {
+        let id: string = uuid.v4();
         this.map.set([uri1, uri2], id);
         return id;
     }
