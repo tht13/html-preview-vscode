@@ -7,6 +7,8 @@ import * as path from "path";
 import fileUrl = require("file-url");
 import { SourceType } from "./extension";
 
+const validFiles: string[] = ["html", "jade"];
+
 export class HtmlDocumentView {
     private provider: HtmlDocumentContentProvider;
     private registrations: Disposable[] = [];
@@ -33,14 +35,14 @@ export class HtmlDocumentView {
 
     private registerEvents(): void {
         workspace.onDidSaveTextDocument(document => {
-            if (this.isHTMLFile(document)) {
+            if (this.isValidFile(document)) {
                 const uri: Uri = this.getHTMLUri(document.uri);
                 this.provider.update(uri);
             }
         });
 
         workspace.onDidChangeTextDocument(event => {
-            if (this.isHTMLFile(event.document)) {
+            if (this.isValidFile(event.document)) {
                 const uri: Uri = this.getHTMLUri(event.document.uri);
                 this.provider.update(uri);
 
@@ -66,18 +68,18 @@ export class HtmlDocumentView {
     }
 
     private get visible(): boolean {
-        for (let i in window.visibleTextEditors) {
-            if (window.visibleTextEditors[i].document.uri === this.previewUri) {
+        for (let editor of window.visibleTextEditors) {
+            if (editor.document.uri === this.previewUri) {
                 return true;
             }
         }
         return false;
     }
 
-    public execute(column: ViewColumn): void {
-        commands.executeCommand("vscode.previewHtml", this.previewUri, column,
+    public execute(column: ViewColumn): Thenable<any> {
+        return commands.executeCommand("vscode.previewHtml", this.previewUri, column,
             `Preview '${path.basename(this.uri.fsPath)}'`).then(
-            (success) => void 0,
+            (success) => success,
             (reason) => {
                 console.warn(reason);
                 window.showErrorMessage(reason);
@@ -90,8 +92,8 @@ export class HtmlDocumentView {
         }
     }
 
-    private isHTMLFile(document: TextDocument): boolean {
-        return document.languageId === "html"
+    private isValidFile(document: TextDocument): boolean {
+        return validFiles.includes(document.languageId)
             && document.uri.scheme !== "html"; // prevent processing of own documents
     }
 }
@@ -117,7 +119,7 @@ class HtmlDocumentContentProvider implements TextDocumentContentProvider {
     }
 
     private createHtmlSnippet(): string {
-        if (this.doc.languageId !== "html" && this.doc.languageId !== "jade") {
+        if (!validFiles.includes(this.doc.languageId)) {
             return this.errorSnippet("Active editor doesn't show a HTML or Jade document - no properties to preview.");
         }
         return this.preview();

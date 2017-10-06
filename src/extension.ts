@@ -12,16 +12,18 @@ export enum SourceType {
 }
 let viewManager: ViewManager;
 export function activate(context: ExtensionContext): void {
+    console.log("active");
     viewManager = new ViewManager();
 
     context.subscriptions.push(
-        commands.registerCommand("html.previewToSide", uri => viewManager.preview(uri, true)),
-        commands.registerCommand("html.preview", () => viewManager.preview()),
-        commands.registerCommand("html.source", () => viewManager.source())
+        commands.registerTextEditorCommand("html.previewToSide", editor => viewManager.preview(editor, true)),
+        commands.registerTextEditorCommand("html.preview", editor => viewManager.preview(editor)),
+        commands.registerTextEditorCommand("html.source", () => viewManager.source())
     );
 }
 
 export function deactivate(): void {
+    console.log("deactivate");
     viewManager.dispose();
 }
 
@@ -29,7 +31,7 @@ class ViewManager {
     private idMap: IDMap = new IDMap();
     private fileMap: Map<string, HtmlDocumentView> = new Map<string, HtmlDocumentView>();
 
-    private sendHTMLCommand(displayColumn: ViewColumn, doc: TextDocument, toggle: boolean = false): void {
+    private sendHTMLCommand(displayColumn: ViewColumn, doc: TextDocument, toggle: boolean = false): Thenable<any> {
         let id: string;
         let htmlDoc: HtmlDocumentView;
         if (!this.idMap.hasUri(doc.uri)) {
@@ -40,7 +42,7 @@ class ViewManager {
             id = this.idMap.getByUri(doc.uri);
             htmlDoc = this.fileMap.get(id);
         }
-        htmlDoc.execute(displayColumn);
+        return htmlDoc.execute(displayColumn);
     }
 
     private getViewColumn(sideBySide: boolean): ViewColumn {
@@ -81,25 +83,17 @@ class ViewManager {
         });
     }
 
-    public preview(resource?: Uri, sideBySide: boolean = false): void {
-        if (!(resource instanceof Uri)) {
-            if (window.activeTextEditor) {
-                // we are relaxed and don't check for markdown files
-                resource = window.activeTextEditor.document.uri;
-            }
-        }
+    public async preview(editor: TextEditor, sideBySide: boolean = false): Promise<void> {
+        let resource: Uri = editor.document.uri;
 
-        if (!(resource instanceof Uri)) {
-            if (!window.activeTextEditor) {
-                // this is most likely toggling the preview
-                commands.executeCommand("html.source");
-                return;
-            }
-            // nothing found that could be shown or toggled
+        if (!window.activeTextEditor) {
+            // this is most likely toggling the preview
+            commands.executeCommand("html.source");
             return;
         }
+
         // activeTextEditor does not exist when triggering on a html preview
-        this.sendHTMLCommand(this.getViewColumn(sideBySide),
+        await this.sendHTMLCommand(this.getViewColumn(sideBySide),
             window.activeTextEditor.document);
     }
 
@@ -119,6 +113,7 @@ class IDMap {
                 return this.map.get(key);
             }
         }
+        return null;
     }
 
     public hasUri(uri: Uri): boolean {
