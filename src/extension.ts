@@ -3,7 +3,7 @@ import {
     window, ExtensionContext, commands, Uri,
     ViewColumn, TextDocument, TextEditor, workspace
 } from "vscode";
-import * as uuid from "node-uuid";
+import * as uuid from "uuid";
 import { HtmlDocumentView } from "./document";
 
 export enum SourceType {
