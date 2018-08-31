@@ -3,7 +3,7 @@
   "displayName": "HTML Preview",
   "description": "A HTML previewer",
   "version": "0.1.1",
-  "publisher": "tht13",
+  "publisher": "thtownsend",
   "author": "Thomas Haakon Townsend",
   "license": "MIT",
   "readme": "README.md",
@@ -20,7 +20,7 @@
   "icon": "media/icon.png",
   "main": "./out/src/extension.js",
   "engines": {
-    "vscode": "^1.6.0"
+    "vscode": "^1.26.0"
   },
   "categories": [
     "Other"
@@ -95,24 +95,27 @@
     }
   },
   "scripts": {
-    "build": "tsc -p ./",
-    "vscode:prepublish": "npm run build",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "preversion": "npm run build",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "preversion": "npm run compile",
     "version": "changes",
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
     "file-url": "2.0.2",
-    "uuid": "^3.1.0"
+    "uuid": "3.1.0"
   },
   "devDependencies": {
-    "@studio/changes": "1.3.0",
+    "@studio/changes": "1.7.0",
     "@types/file-url": "2.0.0",
-    "@types/node": "8.0.32",
-    "@types/uuid": "^3.4.2",
-    "typescript": "2.5.3",
-    "vscode": "1.1.5"
+    "@types/mocha": "2.2.42",
+    "@types/node": "10.9.4",
+    "@types/uuid": "3.4.2",
+    "tslint": "^5.8.0",
+    "typescript": "3.0.3",
+    "vscode": "1.1.21"
   }
 }

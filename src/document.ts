@@ -5,7 +5,6 @@ import {
 } from "vscode";
 import * as path from "path";
 import fileUrl = require("file-url");
-import { SourceType } from "./extension";
 
 const validFiles: string[] = ["html", "jade"];
 
@@ -132,30 +131,12 @@ class HtmlDocumentContentProvider implements TextDocumentContentProvider {
                 </body>`;
     }
 
-    private createLocalSource(file: string, type: SourceType): string {
-        let source_path: string = fileUrl(
-            path.join(
-                __dirname,
-                "..",
-                "..",
-                "static",
-                file
-            )
-        );
-        switch (type) {
-            case SourceType.SCRIPT:
-                return `<script src="${source_path}"></script>`;
-            case SourceType.STYLE:
-                return `<link href="${source_path}" rel="stylesheet" />`;
-        }
-    }
-
     private fixLinks(): string {
         return this.doc.getText().replace(
             new RegExp("((?:src|href)=[\'\"])((?!http|\/|data:\w+\/\w+;base64).*?)([\'\"])", "gmi"),
             (subString: string, p1: string, p2: string, p3: string): string => {
                 // avoid failing base64 negative lookahead
-                const match: RegExpMatchArray = subString.match(new RegExp("data:\w+\/\w+;base64"));
+                const match = subString.match(new RegExp("data:\w+\/\w+;base64"));
                 return match === null ? subString : [
                     p1,
                     fileUrl(path.join(
