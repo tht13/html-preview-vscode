@@ -1,121 +1,259 @@
 {
-  "name": "html-preview-vscode",
-  "displayName": "HTML Preview",
-  "description": "A HTML previewer",
-  "version": "0.1.1",
-  "publisher": "thtownsend",
-  "author": "Thomas Haakon Townsend",
-  "license": "MIT",
-  "readme": "README.md",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/tht13/html-preview-vscode"
-  },
-  "galleryBanner": {
-    "color": "#78d6f0",
-    "theme": "light"
-  },
-  "bugs": "https://github.com/tht13/html-preview-vscode/issues",
-  "homepage": "https://github.com/tht13/html-preview-vscode/blob/master/README.md",
-  "icon": "media/icon.png",
-  "main": "./out/src/extension.js",
-  "engines": {
-    "vscode": "^1.26.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onLanguage:html"
-  ],
-  "contributes": {
-    "keybindings": [
-      {
-        "command": "html.preview",
-        "key": "ctrl+shift+h",
-        "mac": "cmd+shift+h",
-        "when": "!terminalFocus"
-      },
-      {
-        "command": "html.previewToSide",
-        "key": "ctrl+k h",
-        "mac": "cmd+k h"
-      }
-    ],
-    "commands": [
-      {
-        "command": "html.preview",
-        "title": "Open Preview",
-        "category": "HTML",
-        "icon": {
-          "light": "./media/Preview.svg",
-          "dark": "./media/Preview_inverse.svg"
-        }
-      },
-      {
-        "command": "html.previewToSide",
-        "title": "Open Preview to the Side",
-        "category": "HTML",
-        "icon": {
-          "light": "./media/PreviewOnRightPane_16x.svg",
-          "dark": "./media/PreviewOnRightPane_16x_dark.svg"
-        }
-      },
-      {
-        "command": "html.source",
-        "title": "Show Source",
-        "category": "HTML",
-        "icon": {
-          "light": "./media/ViewSource.svg",
-          "dark": "./media/ViewSource_inverse.svg"
-        }
-      }
-    ],
-    "menus": {
-      "editor/title": [
-        {
-          "when": "editorLangId == html",
-          "command": "html.preview",
-          "alt": "html.previewToSide",
-          "group": "navigation"
-        },
-        {
-          "when": "resourceScheme == html",
-          "command": "html.source",
-          "group": "navigation"
-        }
-      ],
-      "explorer/context": [
-        {
-          "when": "editorLangId == html",
-          "command": "html.preview",
-          "group": "navigation"
-        }
-      ]
-    }
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test",
-    "preversion": "npm run compile",
-    "version": "changes",
-    "postversion": "git push --follow-tags"
-  },
-  "dependencies": {
-    "file-url": "2.0.2",
-    "uuid": "3.1.0"
-  },
-  "devDependencies": {
-    "@studio/changes": "1.7.0",
-    "@types/file-url": "2.0.0",
-    "@types/mocha": "2.2.42",
-    "@types/node": "10.9.4",
-    "@types/uuid": "3.4.2",
-    "tslint": "^5.8.0",
-    "typescript": "3.0.3",
-    "vscode": "1.1.21"
-  }
+	"name": "html-preview-vscode",
+	"displayName": "HTML Preview",
+	"description": "A HTML previewer",
+	"version": "0.1.1",
+	"publisher": "thtownsend",
+	"author": "Thomas Haakon Townsend",
+	"license": "MIT",
+	"readme": "README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tht13/html-preview-vscode"
+	},
+	"galleryBanner": {
+		"color": "#78d6f0",
+		"theme": "light"
+	},
+	"bugs": "https://github.com/tht13/html-preview-vscode/issues",
+	"homepage": "https://github.com/tht13/html-preview-vscode/blob/master/README.md",
+	"icon": "media/icon.png",
+	"main": "./out/extension.js",
+	"engines": {
+		"vscode": "^1.26.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"activationEvents": [
+		"onLanguage:html",
+		"onCommand:html.preview.toggleLock",
+		"onCommand:html.preview.refresh",
+		"onCommand:html.showPreview",
+		"onCommand:html.showPreviewToSide",
+		"onCommand:html.showLockedPreviewToSide",
+		"onCommand:html.showSource",
+		"onCommand:html.showPreviewSecuritySelector",
+		"onWebviewPanel:html.preview"
+	],
+	"contributes": {
+		"commands": [
+			{
+				"command": "html.showPreview",
+				"title": "%html.preview.title%",
+				"category": "HTML",
+				"icon": {
+					"light": "./media/Preview.svg",
+					"dark": "./media/Preview_inverse.svg"
+				}
+			},
+			{
+				"command": "html.showPreviewToSide",
+				"title": "%html.previewSide.title%",
+				"category": "HTML",
+				"icon": {
+					"light": "./media/PreviewOnRightPane_16x.svg",
+					"dark": "./media/PreviewOnRightPane_16x_dark.svg"
+				}
+			},
+			{
+				"command": "html.showLockedPreviewToSide",
+				"title": "%html.showLockedPreviewToSide.title%",
+				"category": "HTML",
+				"icon": {
+					"light": "./media/PreviewOnRightPane_16x.svg",
+					"dark": "./media/PreviewOnRightPane_16x_dark.svg"
+				}
+			},
+			{
+				"command": "html.showSource",
+				"title": "%html.showSource.title%",
+				"category": "HTML",
+				"icon": {
+					"light": "./media/ViewSource.svg",
+					"dark": "./media/ViewSource_inverse.svg"
+				}
+			},
+			{
+				"command": "html.showPreviewSecuritySelector",
+				"title": "%html.showPreviewSecuritySelector.title%",
+				"category": "HTML"
+			},
+			{
+				"command": "html.preview.refresh",
+				"title": "%html.preview.refresh.title%",
+				"category": "HTML"
+			},
+			{
+				"command": "html.preview.toggleLock",
+				"title": "%html.preview.toggleLock.title%",
+				"category": "HTML"
+			}
+		],
+		"menus": {
+			"editor/title": [
+				{
+					"command": "html.showPreviewToSide",
+					"when": "editorLangId == html",
+					"alt": "html.showPreview",
+					"group": "navigation"
+				},
+				{
+					"command": "html.showSource",
+					"when": "htmlPreviewFocus",
+					"group": "navigation"
+				},
+				{
+					"command": "html.preview.refresh",
+					"when": "htmlPreviewFocus",
+					"group": "1_html"
+				},
+				{
+					"command": "html.preview.toggleLock",
+					"when": "htmlPreviewFocus",
+					"group": "1_html"
+				},
+				{
+					"command": "html.showPreviewSecuritySelector",
+					"when": "htmlPreviewFocus",
+					"group": "1_html"
+				}
+			],
+			"explorer/context": [
+				{
+					"command": "html.showPreview",
+					"when": "resourceLangId == html",
+					"group": "navigation"
+				}
+			],
+			"editor/title/context": [
+				{
+					"command": "html.showPreview",
+					"when": "resourceLangId == html",
+					"group": "navigation"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "html.showPreview",
+					"when": "editorLangId == html",
+					"group": "navigation"
+				},
+				{
+					"command": "html.showPreviewToSide",
+					"when": "editorLangId == html",
+					"group": "navigation"
+				},
+				{
+					"command": "html.showLockedPreviewToSide",
+					"when": "editorLangId == html",
+					"group": "navigation"
+				},
+				{
+					"command": "html.showSource",
+					"when": "htmlPreviewFocus",
+					"group": "navigation"
+				},
+				{
+					"command": "html.showPreviewSecuritySelector",
+					"when": "editorLangId == html"
+				},
+				{
+					"command": "html.showPreviewSecuritySelector",
+					"when": "htmlPreviewFocus"
+				},
+				{
+					"command": "html.preview.toggleLock",
+					"when": "htmlPreviewFocus"
+				}
+			]
+		},
+		"keybindings": [
+			{
+				"command": "html.showPreview",
+				"key": "shift+ctrl+v",
+				"mac": "shift+cmd+v",
+				"when": "editorLangId == html"
+			},
+			{
+				"command": "html.showPreviewToSide",
+				"key": "ctrl+k v",
+				"mac": "cmd+k v",
+				"when": "editorLangId == html"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "HTML",
+			"order": 20,
+			"properties": {
+				"html.preview.scrollPreviewWithEditor": {
+					"type": "boolean",
+					"default": true,
+					"description": "%html.preview.scrollPreviewWithEditor.desc%",
+					"scope": "resource"
+				},
+				"html.preview.markEditorSelection": {
+					"type": "boolean",
+					"default": true,
+					"description": "%html.preview.markEditorSelection.desc%",
+					"scope": "resource"
+				},
+				"html.preview.scrollEditorWithPreview": {
+					"type": "boolean",
+					"default": true,
+					"description": "%html.preview.scrollEditorWithPreview.desc%",
+					"scope": "resource"
+				},
+				"html.preview.doubleClickToSwitchToEditor": {
+					"type": "boolean",
+					"default": true,
+					"description": "%html.preview.doubleClickToSwitchToEditor.desc%",
+					"scope": "resource"
+				},
+				"html.trace": {
+					"type": "string",
+					"enum": [
+						"off",
+						"verbose"
+					],
+					"default": "off",
+					"description": "%html.trace.desc%",
+					"scope": "window"
+				}
+			}
+		},
+		"html.previewScripts": [
+			"./media/index.js"
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "npm run build-ext && npm run build-preview",
+		"build-ext": "npx tsc -p ./tsconfig.json",
+		"build-preview": "./node_modules/.bin/webpack-cli",
+		"watch": "npx tsc -watch -p ./tsconfig.json",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test",
+		"preversion": "npm run compile",
+		"version": "changes",
+		"postversion": "git push --follow-tags"
+	},
+	"dependencies": {
+		"lodash.throttle": "4.1.1",
+		"vscode-nls": "3.2.4"
+	},
+	"devDependencies": {
+		"@studio/changes": "1.7.0",
+		"@types/lodash.throttle": "4.1.4",
+		"@types/mocha": "2.2.42",
+		"@types/node": "10.9.4",
+		"ts-loader": "4.0.1",
+		"tslib": "^1.9.3",
+		"tslint": "5.8.0",
+		"typescript": "3.0.3",
+		"vscode": "1.1.21",
+		"webpack": "4.19.0",
+		"webpack-cli": "3.1.0"
+	}
 }

@@ -1,0 +1,17 @@
+{
+	"displayName": "HTML Language Features",
+	"description": "Provides rich language support for HTML.",
+	"html.preview.doubleClickToSwitchToEditor.desc": "Double click in the html preview to switch to the editor.",
+	"html.preview.markEditorSelection.desc": "Mark the current editor selection in the html preview.",
+	"html.preview.scrollEditorWithPreview.desc": "When a html preview is scrolled, update the view of the editor.",
+	"html.preview.scrollPreviewWithEditor.desc": "When a html editor is scrolled, update the view of the preview.",
+	"html.preview.title" : "Open Preview",
+	"html.previewFrontMatter.dec": "Sets how YAML front matter should be rendered in the html preview. 'hide' removes the front matter. Otherwise, the front matter is treated as html content.",
+	"html.previewSide.title" : "Open Preview to the Side",
+	"html.showLockedPreviewToSide.title": "Open Locked Preview to the Side",
+	"html.showSource.title" : "Show Source",
+	"html.showPreviewSecuritySelector.title": "Change Preview Security Settings",
+	"html.trace.desc": "Enable debug logging for the html extension.",
+	"html.preview.refresh.title": "Refresh Preview",
+	"html.preview.toggleLock.title": "Toggle Preview Locking"
+}

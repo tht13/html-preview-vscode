@@ -1,144 +1,49 @@
-"use strict";
-import {
-  window,
-  ExtensionContext,
-  commands,
-  Uri,
-  ViewColumn,
-  TextDocument,
-  TextEditor,
-  workspace
-} from "vscode";
-import * as uuid from "uuid";
-import { HtmlDocumentView } from "./document";
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
-let viewManager: ViewManager;
-export function activate(context: ExtensionContext): void {
-  console.log("active");
-  viewManager = new ViewManager();
+import * as vscode from 'vscode';
+import { CommandManager } from './commandManager';
+import * as commands from './commands/index';
+import { HTMLContentProvider } from './features/previewContentProvider';
+import { HTMLPreviewManager } from './features/previewManager';
+import { Logger } from './logger';
+import { ExtensionContentSecurityPolicyArbiter, PreviewSecuritySelector } from './security';
 
-  context.subscriptions.push(
-    commands.registerTextEditorCommand("html.previewToSide", editor =>
-      viewManager.preview(editor, true)
-    ),
-    commands.registerTextEditorCommand("html.preview", editor =>
-      viewManager.preview(editor)
-    ),
-    commands.registerTextEditorCommand("html.source", editor =>
-      viewManager.source(editor.document.uri)
-    )
-  );
+let extensionPath = "";
+
+export function getExtensionPath(): string {
+	return extensionPath;
 }
 
-export function deactivate(): void {
-  console.log("deactivate");
-  viewManager.dispose();
-}
+export function activate(context: vscode.ExtensionContext) {
+	extensionPath = context.extensionPath;
 
-class ViewManager {
-  private idMap: IDMap = new IDMap();
-  private fileMap: Map<string, HtmlDocumentView> = new Map<
-    string,
-    HtmlDocumentView
-  >();
+	const cspArbiter = new ExtensionContentSecurityPolicyArbiter(context.globalState, context.workspaceState);
+	const logger = new Logger();
 
-  private sendHTMLCommand(
-    displayColumn: ViewColumn,
-    doc: TextDocument,
-    toggle: boolean = false
-  ): Thenable<any> {
-    let htmlDoc: HtmlDocumentView;
-    if (!this.idMap.hasUri(doc.uri)) {
-      htmlDoc = new HtmlDocumentView(doc);
-      let id = this.idMap.add(doc.uri, htmlDoc.uri);
-      this.fileMap.set(id, htmlDoc);
-    } else {
-      let id = this.idMap.getByUri(doc.uri);
-      if (id === null) {
-          throw new Error("Invalid Id");
-      }
-      if (!this.fileMap.has(id)) {
-        throw new Error("Missing id in file map");
-      }
-      htmlDoc = this.fileMap.get(id) as HtmlDocumentView;
-    }
-    return htmlDoc.execute(displayColumn);
-  }
+	const contentProvider = new HTMLContentProvider(context, cspArbiter, logger);
+	const previewManager = new HTMLPreviewManager(contentProvider, logger);
+	context.subscriptions.push(previewManager);
 
-  private getViewColumn(sideBySide: boolean): ViewColumn {
-    if (!window.activeTextEditor) {
-      return ViewColumn.One;
-    }
-    const active: TextEditor = window.activeTextEditor;
 
-    if (!sideBySide) {
-      return active.viewColumn || ViewColumn.One;
-    }
+	const previewSecuritySelector = new PreviewSecuritySelector(cspArbiter, previewManager);
 
-    switch (active.viewColumn) {
-      case ViewColumn.One:
-        return ViewColumn.Two;
-      case ViewColumn.Two:
-        return ViewColumn.Three;
-    }
+	const commandManager = new CommandManager();
+	context.subscriptions.push(commandManager);
+	commandManager.register(new commands.ShowPreviewCommand(previewManager));
+	commandManager.register(new commands.ShowPreviewToSideCommand(previewManager));
+	commandManager.register(new commands.ShowLockedPreviewToSideCommand(previewManager));
+	commandManager.register(new commands.ShowSourceCommand(previewManager));
+	commandManager.register(new commands.RefreshPreviewCommand(previewManager));
+	commandManager.register(new commands.MoveCursorToPositionCommand());
+	commandManager.register(new commands.ShowPreviewSecuritySelectorCommand(previewSecuritySelector, previewManager));
+	commandManager.register(new commands.OpenDocumentLinkCommand());
+	commandManager.register(new commands.ToggleLockCommand(previewManager));
 
-    return active.viewColumn || ViewColumn.One;
-  }
-
-  public source(mdUri: Uri): Thenable<any> {
-    const docUri: Uri = Uri.parse(mdUri.query);
-
-    for (let editor of window.visibleTextEditors) {
-      if (editor.document.uri.toString() === docUri.toString()) {
-        return window.showTextDocument(editor.document, editor.viewColumn);
-      }
-    }
-
-    return workspace.openTextDocument(docUri).then(doc => {
-      return window.showTextDocument(doc);
-    });
-  }
-
-  public async preview(
-    editor: TextEditor,
-    sideBySide: boolean = false
-  ): Promise<void> {
-    // activeTextEditor does not exist when triggering on a html preview
-    if (!window.activeTextEditor) {
-      return;
-    }
-    await this.sendHTMLCommand(
-      this.getViewColumn(sideBySide),
-      window.activeTextEditor.document
-    );
-  }
-
-  public dispose(): void {
-    for (let document of this.fileMap.values()) {
-      document.dispose();
-    }
-  }
-}
-
-class IDMap {
-  private map: Map<[Uri, Uri], string> = new Map<[Uri, Uri], string>();
-
-  public getByUri(uri: Uri): string | null {
-    for (let key of this.map.keys()) {
-      if (key.indexOf(uri) > -1) {
-        return this.map.get(key) as string;
-      }
-    }
-    return null;
-  }
-
-  public hasUri(uri: Uri): boolean {
-    return this.getByUri(uri) !== null;
-  }
-
-  public add(uri1: Uri, uri2: Uri): string {
-    let id: string = uuid.v4();
-    this.map.set([uri1, uri2], id);
-    return id;
-  }
+	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(() => {
+		logger.updateConfiguration();
+		previewManager.updateConfiguration();
+	}));
 }
