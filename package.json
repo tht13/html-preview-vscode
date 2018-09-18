@@ -3,7 +3,7 @@
 	"displayName": "%displayName%",
 	"description": "%description%",
 	"version": "0.2.2",
-	"publisher": "thtownsend",
+	"publisher": "tht13",
 	"author": "Thomas Haakon Townsend",
 	"license": "MIT",
 	"readme": "README.md",
@@ -17,7 +17,7 @@
 	},
 	"bugs": "https://github.com/tht13/html-preview-vscode/issues",
 	"homepage": "https://github.com/tht13/html-preview-vscode/blob/master/README.md",
-	"icon": "media/icon.png",
+	"icon": "icon.png",
 	"main": "./out/extension.js",
 	"engines": {
 		"vscode": "^1.26.0"
