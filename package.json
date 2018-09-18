@@ -2,7 +2,7 @@
 	"name": "html-preview-vscode",
 	"displayName": "%displayName%",
 	"description": "%description%",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"publisher": "tht13",
 	"author": "Thomas Haakon Townsend",
 	"license": "MIT",
