@@ -1,7 +1,7 @@
 {
 	"name": "html-preview-vscode",
-	"displayName": "HTML Preview",
-	"description": "A HTML previewer",
+	"displayName": "%displayName%",
+	"description": "%description%",
 	"version": "0.1.1",
 	"publisher": "thtownsend",
 	"author": "Thomas Haakon Townsend",
