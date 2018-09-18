@@ -1,3 +1,0 @@
-# omg
-
-hello world

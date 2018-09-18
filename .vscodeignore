@@ -8,3 +8,7 @@ src/**
 tsconfig.json
 vsc-extension-quickstart.md
 *.vsix
+tslint.json
+webpack.config.js
+.git/**
+.vscode-test/**
