@@ -67,8 +67,6 @@ export class HTMLContentProvider {
 		const nonce = new Date().getTime() + '' + new Date().getMilliseconds();
 		const csp = this.getCspForResource(sourceUri, nonce);
 
-		// const tags = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "img", "code", "blockquote", "li"];
-
         const parsedDoc = htmlDocument.getText().split("\n").map((l,i) => 
 			l.replace(this.TAG_RegEx, (
 				match: string, p1: string, p2: string, p3: string, 
@@ -89,16 +87,6 @@ export class HTMLContentProvider {
 				${this.getStyles(sourceUri, config)}
 				<base href="${htmlDocument.uri.with({ scheme: 'vscode-resource' }).toString(true)}">`);
 		$("body").addClass(`vscode-body ${config.scrollBeyondLastLine ? 'scrollBeyondLastLine' : ''} ${config.wordWrap ? 'wordWrap' : ''} ${config.markEditorSelection ? 'showEditorSelection' : ''}`);
-		// body.append(`<div class="code-line" data-line="${htmlDocument.lineCount}"></div>`);
-
-		// body.children().each((i, el) => {
-		// 	if (!tags.includes(el.tagName)){ 
-		// 		return;
-		// 	}
-		// 	el.attribs["class"] += " code-line";
-		// 	el.attribs["data-line"] = i.toString();
-		// });
-
 		return $.html();
 	}
 
