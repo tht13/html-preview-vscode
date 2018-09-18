@@ -1,5 +1,10 @@
 # Changes
 
+## 0.2.3
+
+- Update version
+- Fix publisher and icon
+
 ## 0.2.2
 
 - Update version
