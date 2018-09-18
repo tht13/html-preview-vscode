@@ -1,5 +1,10 @@
 # Changes
 
+## 0.2.1
+
+- Update package version
+- Clean up and make tests run
+
 ## 0.2.0
 
 - Upgrade package version
