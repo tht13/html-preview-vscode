@@ -1,5 +1,10 @@
 # Changes
 
+## 0.2.2
+
+- Update version
+- Update icon and readme
+
 ## 0.2.1
 
 - Update package version
