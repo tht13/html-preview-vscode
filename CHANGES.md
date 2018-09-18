@@ -1,5 +1,23 @@
 # Changes
 
+## 0.2.0
+
+- Upgrade package version
+- Upgrade nls
+- Clean up
+- Remove old markdown files
+- Fix auto scrolling
+- Upgrade to vscode-markdown impl of preview
+- Update extension
+- Update general code and fix tsc errors
+- Fix inline image regex error
+- Disable custom css override
+- Update configurations
+- Upgrade packages
+- Fix inline data:image/pnd;base64 images Closes #3
+- Fix tslint issues
+- Fix `when` state for commands. Avoid key cord issue on MacOS for terminal. (Hooky)
+
 ## 0.1.1
 
 - Update readme for MacOS keybindings (Thomas Townsend)
