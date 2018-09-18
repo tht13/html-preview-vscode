@@ -14,19 +14,19 @@ const options: any = {
   timeout: 60000
 };
 
-options.reporter = "mocha-multi-reporters";
-options.reporterOptions = {
-  reporterEnabled: "spec, mocha-junit-reporter",
-  mochaJunitReporterReporterOptions: {
-    testsuitesTitle: `${suite} ${process.platform}`,
-    mochaFile: path.join(
-      "test-results",
-      `test-results/${process.platform}-${suite
-        .toLowerCase()
-        .replace(/[^\w]/g, "-")}-results.xml`
-    )
-  }
-};
+// options.reporter = "mocha-multi-reporters";
+// options.reporterOptions = {
+//   reporterEnabled: "spec, mocha-junit-reporter",
+//   mochaJunitReporterReporterOptions: {
+//     testsuitesTitle: `${suite} ${process.platform}`,
+//     mochaFile: path.join(
+//       "test-results",
+//       `test-results/${process.platform}-${suite
+//         .toLowerCase()
+//         .replace(/[^\w]/g, "-")}-results.xml`
+//     )
+//   }
+// };
 
 testRunner.configure(options);
 

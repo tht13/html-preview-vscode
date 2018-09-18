@@ -222,10 +222,7 @@
 					"scope": "window"
 				}
 			}
-		},
-		"html.previewScripts": [
-			"./media/index.js"
-		]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
