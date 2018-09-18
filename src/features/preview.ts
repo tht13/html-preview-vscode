@@ -327,7 +327,7 @@ export class HTMLPreview {
 		this.forceUpdate = false;
 
 		this.currentVersion = { resource, version: document.version };
-		const content = await this._contentProvider.provideTextDocumentContent(document, this._previewConfigurations, this.line, this.state);
+		const content: string = this._contentProvider.provideTextDocumentContent(document, this._previewConfigurations, this.line, this.state);
 		if (this._resource === resource) {
 			this.editor.title = HTMLPreview.getPreviewTitle(this._resource, this._locked);
 			this.editor.iconPath = this.iconPath;

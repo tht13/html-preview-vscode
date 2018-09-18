@@ -12,6 +12,7 @@ const localize = nls.loadMessageBundle();
 import { Logger } from '../logger';
 import { ContentSecurityPolicyArbiter, HTMLPreviewSecurityLevel } from '../security';
 import { HTMLPreviewConfigurationManager, HTMLPreviewConfiguration } from './previewConfig';
+import * as cheerio from "cheerio";
 
 /**
  * Strings used inside the html preview.
@@ -40,6 +41,8 @@ export class HTMLContentProvider {
 		private readonly logger: Logger
 	) { }
 
+	private readonly TAG_RegEx = /^\s*?\<(p|h[1-6]|img|code|div|blockquote|li)((\s+.*?)(class="(.*?)")(.*?\>)|\>|\>|\/\>|\s+.*?\>)/;
+
 	public provideTextDocumentContent(
 		htmlDocument: vscode.TextDocument,
 		previewConfigurations: HTMLPreviewConfigurationManager,
@@ -64,11 +67,18 @@ export class HTMLContentProvider {
 		const nonce = new Date().getTime() + '' + new Date().getMilliseconds();
 		const csp = this.getCspForResource(sourceUri, nonce);
 
-		const body = htmlDocument.getText();
-		return `<!DOCTYPE html>
-		<html>
-		<head>
-				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+		// const tags = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "img", "code", "blockquote", "li"];
+
+        const parsedDoc = htmlDocument.getText().split("\n").map((l,i) => 
+			l.replace(this.TAG_RegEx, (
+				match: string, p1: string, p2: string, p3: string, 
+				p4: string, p5: string, p6: string, offset: number) => 
+			l.replace(match, typeof p5 !== "string" ? 
+			`<${p1} class="code-line" data-line="${i}" ${p2}` : 
+			`<${p1} ${p3} class="${p5} code-line" data-line="${i}" ${p6}`))
+        ).join("\n");
+        const $ = cheerio.load(parsedDoc);
+		$("head").prepend(`<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 				${csp}
 				<meta id="vscode-html-preview-data"
 					data-settings="${JSON.stringify(initialData).replace(/"/g, '&quot;')}"
@@ -77,13 +87,19 @@ export class HTMLContentProvider {
 				<script src="${this.extensionResourcePath('pre.js')}" nonce="${nonce}"></script>
 				<script src="${this.extensionResourcePath('index.js')}" nonce="${nonce}"></script>
 				${this.getStyles(sourceUri, config)}
-				<base href="${htmlDocument.uri.with({ scheme: 'vscode-resource' }).toString(true)}">
-			</head>
-			<body class="vscode-body ${config.scrollBeyondLastLine ? 'scrollBeyondLastLine' : ''} ${config.wordWrap ? 'wordWrap' : ''} ${config.markEditorSelection ? 'showEditorSelection' : ''}">
-				${body}
-				<div class="code-line" data-line="${htmlDocument.lineCount}"></div>
-			</body>
-			</html>`;
+				<base href="${htmlDocument.uri.with({ scheme: 'vscode-resource' }).toString(true)}">`);
+		$("body").addClass(`vscode-body ${config.scrollBeyondLastLine ? 'scrollBeyondLastLine' : ''} ${config.wordWrap ? 'wordWrap' : ''} ${config.markEditorSelection ? 'showEditorSelection' : ''}`);
+		// body.append(`<div class="code-line" data-line="${htmlDocument.lineCount}"></div>`);
+
+		// body.children().each((i, el) => {
+		// 	if (!tags.includes(el.tagName)){ 
+		// 		return;
+		// 	}
+		// 	el.attribs["class"] += " code-line";
+		// 	el.attribs["data-line"] = i.toString();
+		// });
+
+		return $.html();
 	}
 
 	private extensionResourcePath(mediaFile: string): string {
