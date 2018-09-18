@@ -1,5 +1,10 @@
 # Changes
 
+## 0.2.4
+
+- Update version
+- Clean up and reduce published package size
+
 ## 0.2.3
 
 - Update version
