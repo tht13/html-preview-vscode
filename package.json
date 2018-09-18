@@ -2,7 +2,7 @@
 	"name": "html-preview-vscode",
 	"displayName": "%displayName%",
 	"description": "%description%",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"publisher": "thtownsend",
 	"author": "Thomas Haakon Townsend",
 	"license": "MIT",
@@ -236,7 +236,7 @@
 		"postinstall": "node ./node_modules/vscode/bin/install",
 		"test": "npm run compile && node ./node_modules/vscode/bin/test",
 		"preversion": "npm run compile",
-		"version": "changes",
+		"version": "./node_modules/.bin/changes",
 		"postversion": "git push --follow-tags"
 	},
 	"dependencies": {
