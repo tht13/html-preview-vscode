@@ -86,7 +86,7 @@ export class HTMLContentProvider {
 				<script src="${this.extensionResourcePath('index.js')}" nonce="${nonce}"></script>
 				${this.getStyles(sourceUri, config)}
 				<base href="${htmlDocument.uri.with({ scheme: 'vscode-resource' }).toString(true)}">`);
-		$("body").addClass(`vscode-body ${config.scrollBeyondLastLine ? 'scrollBeyondLastLine' : ''} ${config.wordWrap ? 'wordWrap' : ''} ${config.markEditorSelection ? 'showEditorSelection' : ''}`);
+		$("body").addClass(`vscode-body ${config.markEditorSelection ? 'showEditorSelection' : ''}`);
 		return $.html();
 	}
 

@@ -10,10 +10,6 @@ export class HTMLPreviewConfiguration {
 		return new HTMLPreviewConfiguration(resource);
 	}
 
-	public readonly scrollBeyondLastLine: boolean;
-	public readonly wordWrap: boolean;
-	public readonly previewFrontMatter: string;
-	public readonly lineBreaks: boolean;
 	public readonly doubleClickToSwitchToEditor: boolean;
 	public readonly scrollEditorWithPreview: boolean;
 	public readonly scrollPreviewWithEditor: boolean;
@@ -26,17 +22,8 @@ export class HTMLPreviewConfiguration {
 		const htmlConfig = vscode.workspace.getConfiguration('html', resource);
 		const htmlEditorConfig = vscode.workspace.getConfiguration('[html]', resource);
 
-		this.scrollBeyondLastLine = editorConfig.get<boolean>('scrollBeyondLastLine', false);
-
-		this.wordWrap = editorConfig.get<string>('wordWrap', 'off') !== 'off';
-		if (htmlEditorConfig && htmlEditorConfig['editor.wordWrap']) {
-			this.wordWrap = htmlEditorConfig['editor.wordWrap'] !== 'off';
-		}
-
-		this.previewFrontMatter = htmlConfig.get<string>('previewFrontMatter', 'hide');
 		this.scrollPreviewWithEditor = !!htmlConfig.get<boolean>('preview.scrollPreviewWithEditor', true);
 		this.scrollEditorWithPreview = !!htmlConfig.get<boolean>('preview.scrollEditorWithPreview', true);
-		this.lineBreaks = !!htmlConfig.get<boolean>('preview.breaks', false);
 		this.doubleClickToSwitchToEditor = !!htmlConfig.get<boolean>('preview.doubleClickToSwitchToEditor', true);
 		this.markEditorSelection = !!htmlConfig.get<boolean>('preview.markEditorSelection', true);
 
