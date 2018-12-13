@@ -1,5 +1,12 @@
 # Changes
 
+## 0.2.5
+
+- Update version
+- Fix issue #18 - Prevent duplication of preview text
+- Remove redundant settings
+- Fix line match index in preview
+
 ## 0.2.4
 
 - Update version
